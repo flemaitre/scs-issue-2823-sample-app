@@ -1,0 +1,42 @@
+server:
+  port: 8070
+
+spring:
+
+  application:
+    name: producer
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    security:
+      protocol: PLAINTEXT
+    properties:
+      auto-create-topics: true
+      auto-register-schemas: true
+      normalize.schemas: true
+      schema.registry.url: http://localhost:8081
+      value.subject.name.strategy: io.confluent.kafka.serializers.subject.RecordNameStrategy
+    producer:
+      acks: all
+      retries: 3
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+
+management:
+  endpoints:
+    jmx:
+      exposure:
+        include: "health,info"
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: ALWAYS
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true

@@ -1,0 +1,43 @@
+openapi: 3.0.1
+info:
+  title: Business API
+  version: "1.0.0"
+servers:
+  - description: localhost server for development
+    url: http://localhost:8070/api/v1
+tags:
+  - name: businessEntity
+    description: Business entity
+paths:
+  /entities:
+    post:
+      tags:
+        - businessEntity
+      summary: Creates a business entity
+      operationId: createBusinessEntity
+      requestBody:
+        $ref: '#/components/requestBodies/BusinessEntityCreationCommand'
+      responses:
+        "201":
+          description: Successful operation. Business entity created
+        "400":
+          description: Bad Request
+components:
+  schemas:
+    BusinessEntity:
+      type: object
+      required:
+        - fieldOne
+      properties:
+        fieldOne:
+          type: string
+        fieldTwo:
+          type: string
+  requestBodies:
+    BusinessEntityCreationCommand:
+      description: Business entity creation command
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BusinessEntity'

@@ -1,0 +1,67 @@
+server:
+  port: 8071
+
+spring:
+
+  application:
+    name: consumer
+
+  cloud:
+    stream:
+      function:
+        definition: processBusinessEntityCreatedEvent
+      bindings:
+        processBusinessEntityCreatedEvent-in-0:
+          destination: business-entity-event
+      kafka:
+        binder:
+          security:
+            protocol: PLAINTEXT
+        streams:
+          binder:
+            brokers: localhost:9092
+            auto-create-topics: true
+            configuration:
+              auto.register.schemas: true
+              commit.interval.ms: 500
+              normalize.schemas: true
+              schema.registry.url: http://localhost:8081
+              value.subject.name.strategy: io.confluent.kafka.serializers.subject.RecordNameStrategy
+            functions:
+              processBusinessEntityCreatedEvent:
+                applicationId: business-entity-created-event-consumer-group
+              retryProcessBusinessEntityCreatedEvent:
+                applicationId: business-entity-created-event-retry-consumer-group
+          default:
+            consumer:
+              key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+              value-serde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
+              start-offset: latest
+              enable-dlq: true
+              deserialization-exception-handler: sendToDlq
+          bindings:
+            processBusinessEntityCreatedEvent-in-0:
+              consumer:
+                dlq-name: consumer-business-entity-event-error
+#                event-types: business-entity-created-event
+
+management:
+  endpoints:
+    jmx:
+      exposure:
+        include: "health,info"
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: ALWAYS
+  health:
+    binders:
+      enabled: true
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
