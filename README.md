@@ -1,4 +1,4 @@
-# Sample application for demonstrating the Spring Cloud Stream issue 2613
+# Sample application for demonstrating the Spring Cloud Stream issue 2823
 
 ## Requirements
 - Java 17
@@ -9,19 +9,22 @@ Use the `docker-compose up -d` command to launch the Kafka broker and the Schema
 
 ## Steps to demonstrate the correct behaviour
 
-When not using event types routing (*), the "on deserialization error" message is skipped and sent to the Dead Letter Topic.
+When the consumers concurrency is set to 1 (*), all messages published by the producer are correctly consumed by the consumers.
 
-(*) "spring.cloud.stream.kafka.streams.binding.processBusinessEntityCreatedEvent-in-0.consumer.event-types" property commented in the Consumer application.yml
+(*) "spring.cloud.stream.kafka.streams.bindings.*-in-0.consumer.concurrency" properties must be set to 1 in place of 2 in the Consumer app application.yml
 
-1. Start the Consumer app
-2. Start the Producer app
-3. Send a message to Kafka: `curl -X POST -H "Content-Type: application/json" -d "{ \"fieldOne\": \"valueOne\" }" http://localhost:8070/api/v1/entities`
+1. In the Consumer app application.yml, set the consumers concurrency to 1
+2. Start the Consumer app
+3. Start the Producer app (publishes 500 BusinessEntityCreatedEvent messages and 500 BusinessEntityDeletedEvent messages in the "business-entity-event" topic at startup)
+4. No errors in the logs of the Consumer app
 
 ## Steps to reproduce the issue
 
-When using event types routing, the "on deserialization error" message is not sent to the Dead Letter Topic and the consumer (Stream client) is shutdown.
+When the consumers concurrency is set to 2 (*), some messages published by the producer are routed to the wrong consumer, resulting in java.lang.ClassCastException exceptions.
 
-1. Uncomment the "spring.cloud.stream.kafka.streams.binding.processBusinessEntityCreatedEvent-in-0.consumer.event-types" property in the Consumer application.yml
+(*) "spring.cloud.stream.kafka.streams.bindings.*-in-0.consumer.concurrency" properties must be set to 2 in the Consumer app application.yml
+
+1. In the Consumer app application.yml, set the consumers concurrency to 2
 2. Start the Consumer app
-3. Start the Producer app
-4. Send a message to Kafka: `curl -X POST -H "Content-Type: application/json" -d "{ \"fieldOne\": \"valueOne\" }" http://localhost:8070/api/v1/entities`
+3. Start the Producer app (publishes 500 BusinessEntityCreatedEvent messages and 500 BusinessEntityDeletedEvent messages in the "business-entity-event" topic at startup)
+4. java.lang.ClassCastException errors in the logs of the Consumer app and shut down of the two streams clients

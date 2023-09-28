@@ -1,0 +1,19 @@
+{
+  "name": "BusinessEntityDeletedEvent",
+  "namespace": "kafka.event",
+  "type": "record",
+  "fields": [
+    {
+      "name": "businessEntityId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      }
+    },
+    {
+      "name": "deletionDateTime",
+      "description": "deletion date/time epoch milliseconds (number of seconds from the epoch of 1970-01-01T00:00:00Z)",
+      "type": "long"
+    }
+  ]
+}
