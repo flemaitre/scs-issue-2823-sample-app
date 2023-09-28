@@ -6,18 +6,16 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import java.time.LocalDateTime;
-
-import static java.time.ZoneOffset.UTC;
+import java.time.Instant;
 
 @Mapper(componentModel = "spring")
 interface BusinessEntityCreatedEventMapper {
 
-    @Mapping(target = "creationDateTime", source = "creationDateTime", qualifiedByName = "toEpochSeconds")
+    @Mapping(target = "creationDateTime", source = "creationDateTime", qualifiedByName = "toEpochMilliseconds")
     BusinessEntityCreatedEvent toAvro(BusinessEntityCreatedDomainEvent event);
 
-    @Named("toEpochSeconds")
-    default Long toEpochSeconds(LocalDateTime localDateTime) {
-        return localDateTime == null ? null : localDateTime.toEpochSecond(UTC);
+    @Named("toEpochMilliseconds")
+    default Long toEpochMilliseconds(Instant instant) {
+        return instant == null ? null : instant.toEpochMilli();
     }
 }

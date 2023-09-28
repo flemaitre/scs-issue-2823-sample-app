@@ -7,16 +7,24 @@ spring:
     name: consumer
 
   cloud:
+    function:
+      definition: processBusinessEntityCreatedEvent;processBusinessEntityDeletedEvent
+
     stream:
-      function:
-        definition: processBusinessEntityCreatedEvent
       bindings:
         processBusinessEntityCreatedEvent-in-0:
           destination: business-entity-event
+          consumer:
+            concurrency: 2
+        processBusinessEntityDeletedEvent-in-0:
+          destination: business-entity-event
+          consumer:
+            concurrency: 2
       kafka:
         binder:
-          security:
-            protocol: PLAINTEXT
+          configuration:
+            security:
+              protocol: PLAINTEXT
         streams:
           binder:
             brokers: localhost:9092
@@ -30,20 +38,25 @@ spring:
             functions:
               processBusinessEntityCreatedEvent:
                 applicationId: business-entity-created-event-consumer-group
-              retryProcessBusinessEntityCreatedEvent:
-                applicationId: business-entity-created-event-retry-consumer-group
+              processBusinessEntityDeletedEvent:
+                applicationId: business-entity-deleted-event-consumer-group
           default:
             consumer:
               key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
               value-serde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
-              start-offset: latest
               enable-dlq: true
               deserialization-exception-handler: sendToDlq
           bindings:
             processBusinessEntityCreatedEvent-in-0:
               consumer:
                 dlq-name: consumer-business-entity-event-error
-#                event-types: business-entity-created-event
+                event-types: business-entity-created-event
+                use-configured-serde-when-routing-events: true
+            processBusinessEntityDeletedEvent-in-0:
+              consumer:
+                dlq-name: consumer-business-entity-event-error
+                event-types: business-entity-deleted-event
+                use-configured-serde-when-routing-events: true
 
 management:
   endpoints:

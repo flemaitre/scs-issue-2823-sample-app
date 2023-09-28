@@ -6,16 +6,17 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.springframework.context.ApplicationEvent;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class BusinessEntityCreatedDomainEvent extends ApplicationEvent {
 
-    LocalDateTime creationDateTime;
+    Instant creationDateTime;
 
     @Builder
-    public BusinessEntityCreatedDomainEvent(BusinessEntity businessEntity, LocalDateTime creationDateTime) {
+    public BusinessEntityCreatedDomainEvent(BusinessEntity businessEntity, Instant creationDateTime) {
         super(businessEntity);
         this.creationDateTime = creationDateTime;
     }

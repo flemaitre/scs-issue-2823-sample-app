@@ -11,7 +11,10 @@
         "fields": [
           {
             "name": "id",
-            "type": "string"
+            "type": {
+              "type": "string",
+              "logicalType": "uuid"
+            }
           },
           {
             "name": "fieldOne",
@@ -26,7 +29,7 @@
     },
     {
       "name": "creationDateTime",
-      "description": "creation date/time epoch seconds (number of seconds from the epoch of 1970-01-01T00:00:00Z)",
+      "description": "creation date/time epoch milliseconds (number of seconds from the epoch of 1970-01-01T00:00:00Z)",
       "type": "long"
     }
   ]
